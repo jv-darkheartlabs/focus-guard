@@ -1,7 +1,8 @@
 # Focus Guard
-Focus Guard is a Rust dynamic module for Envoy that enforces deterministic retry guardrails before retry storms become operational and cognitive overload.
 
-It is designed for high-pressure incident paths where teams need behavior that is predictable, inspectable, and easy to reason about.
+Rust Envoy dynamic module that enforces deterministic HTTP retry thresholds before retry storms amplify outages.
+
+**Tech spec:** [docs/TECH_SPEC.md](docs/TECH_SPEC.md)
 
 
 ## ANZSCO 261312 Skills Snapshot
@@ -268,3 +269,10 @@ Use Conventional Commits for presentation clarity:
 - `src/`
 - `STORYBOARD.md`
 - `Cargo.toml`
+- `docs/TECH_SPEC.md`
+
+---
+
+**Maintained by:** [Dark Heart Labs](https://darkheartlabs.technology)  
+**Author:** Jennifer ([@jv-darkheartlabs](https://github.com/jv-darkheartlabs))  
+**Site:** https://darkheartlabs.technology
