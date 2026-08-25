@@ -2,7 +2,7 @@
 
 Rust Envoy dynamic module that enforces deterministic HTTP retry thresholds before retry storms amplify outages.
 
-**Tech spec:** [docs/TECH_SPEC.md](docs/TECH_SPEC.md)
+**Tech spec:** [docs/TECH_SPEC.md](docs/TECH_SPEC.md) · **Demo walkthrough:** [STORYBOARD.md](STORYBOARD.md)
 
 
 ## ANZSCO 261312 Skills Snapshot
