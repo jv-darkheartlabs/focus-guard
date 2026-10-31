@@ -58,7 +58,7 @@ JSON filter config: `retry_threshold`, `overload_status_code`, `overload_body`, 
 ## Deployment
 
 - **Target:** Envoy proxy with dynamic module loading
-- **Build:** `cargo test`; `boe run --local .`
+- **Build:** `cargo build --release --locked` (requires Clang/libclang for SDK bindings)
 - **Run:** Local BOE instance on port `10000` by default
 - **Health:** Exercised via `curl` with `x-envoy-attempt-count` header
 
@@ -66,8 +66,12 @@ JSON filter config: `retry_threshold`, `overload_status_code`, `overload_body`, 
 
 | Layer | Command | Coverage |
 |-------|---------|----------|
-| Unit | `cargo test` | Config parsing, pass/throttle paths, TARS callbacks |
+| Unit | `cargo test --locked` | Config parsing, retry-header boundaries, pass/throttle paths, mocked TARS callbacks |
+| Build | `cargo build --release --locked` | Linux shared-library compilation in CI |
+| Runtime | `./verify.sh` | Separate local Envoy/Python-upstream verification; requires an ABI-compatible Envoy build |
 | Manual | `curl` scenarios in README | Threshold behavior |
+
+The SDK is pinned to Envoy commit `f1dd21b16c244bda00edfb5ffce577e12d0d2ec2`. A compiled library is not proof of compatibility with arbitrary Envoy versions. CI does not run a real proxy or contact TARS. See the README for runtime prerequisites and validation boundaries.
 
 ## Security and reliability notes
 
