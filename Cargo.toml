@@ -3,7 +3,7 @@ name = "focus-guard"
 version = "0.1.0"
 edition = "2021"
 license = "Apache-2.0"
-repository = "https://github.com/tetratelabs/built-on-envoy"
+repository = "https://github.com/jv-darkheartlabs/focus-guard"
 
 [dependencies]
 # The SDK version must match the Envoy version due to the strict compatibility requirements.

@@ -870,6 +870,30 @@ mod tests {
     }
 
     #[test]
+    fn test_retry_header_parsing_boundaries() {
+        let cases: &[(Option<&'static [u8]>, u32)] = &[
+            (None, 1),
+            (Some(b""), 1),
+            (Some(b"0"), 1),
+            (Some(b"-1"), 1),
+            (Some(b"abc"), 1),
+            (Some(b"4294967296"), 1),
+            (Some(b"\xff"), 1),
+            (Some(b" 3 "), 3),
+            (Some(b"2"), 2),
+            (Some(b"4294967295"), u32::MAX),
+        ];
+        for &(header, expected) in cases {
+            let mut envoy = envoy_proxy_dynamic_modules_rust_sdk::MockEnvoyHttpFilter::new();
+            envoy.expect_get_request_header_value().times(1).returning(move |key| {
+                assert_eq!(key, "x-envoy-attempt-count");
+                header.map(EnvoyBuffer::new)
+            });
+            assert_eq!(Filter::parse_retry_attempt(&envoy), expected);
+        }
+    }
+
+    #[test]
     fn test_on_request_headers_continue_when_below_threshold() {
         let filter_config = FilterConfig::new(r#"{"retry_threshold": 2}"#).unwrap();
         let mut filter = Filter {

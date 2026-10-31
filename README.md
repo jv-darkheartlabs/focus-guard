@@ -12,7 +12,8 @@ Rust Envoy dynamic module that enforces deterministic HTTP retry thresholds befo
 
 ## Quick Start
 ### 1) Prerequisites
-- Rust toolchain (`rustc`, `cargo`)
+- Current stable Rust toolchain (`rustc`, `cargo`)
+- Clang and libclang for the pinned Envoy SDK’s bindgen build step (Debian/Ubuntu: `sudo apt-get install clang libclang-dev`)
 - Built On Envoy CLI (`boe`)
 
 ### 2) Run Focus Guard locally
@@ -33,7 +34,8 @@ curl -i -H "x-envoy-attempt-count: 3" http://localhost:10000/status/200
 
 ### 4) Run tests
 ```bash
-cargo test
+cargo test --locked
+cargo build --release --locked
 ```
 
 ### 5) Build the demo video
@@ -165,11 +167,13 @@ Namespace: `focus_guard`
   - `x-focus-guard-tars`
 ## Local development
 ### Prerequisites
-- Rust toolchain (`rustc`, `cargo`)
+- Current stable Rust toolchain (`rustc`, `cargo`)
+- Clang and libclang for the pinned Envoy SDK’s bindgen build step (Debian/Ubuntu: `sudo apt-get install clang libclang-dev`)
 - Built On Envoy CLI (`boe`)
 ### Run tests
 ```bash
-cargo test
+cargo test --locked
+cargo build --release --locked
 ```
 ### Run locally
 ```bash
@@ -202,7 +206,8 @@ boe run --local . --config '{
 }'
 curl -i -H "x-envoy-attempt-count: 1" http://localhost:10000/status/200
 curl -i -H "x-envoy-attempt-count: 3" http://localhost:10000/status/200
-cargo test
+cargo test --locked
+cargo build --release --locked
 ```
 ## Validation coverage
 > [!IMPORTANT]
@@ -245,12 +250,14 @@ flowchart LR
 
 ## Setup Instructions
 ```bash
-cargo test
+cargo test --locked
+cargo build --release --locked
 boe run --local .
 ```
 
 ## Testing
-- cargo test
+- cargo test --locked
+cargo build --release --locked
 - curl request simulations with x-envoy-attempt-count header
 
 ## ANZSCO 261312 Competency Evidence
@@ -276,3 +283,15 @@ Use Conventional Commits for presentation clarity:
 **Maintained by:** [Dark Heart Labs](https://darkheartlabs.technology)  
 **Author:** Jennifer ([@jv-darkheartlabs](https://github.com/jv-darkheartlabs))  
 **Site:** https://darkheartlabs.technology
+
+## Reproducibility and runtime verification
+
+CI runs the locked unit tests, builds the release shared library on Linux, and checks shell-script syntax. Unit tests use Envoy SDK mocks; they do not launch a real proxy or contact TARS.
+
+The SDK is pinned to Envoy commit `f1dd21b16c244bda00edfb5ffce577e12d0d2ec2`. Dynamic-module ABI compatibility is strict: use a matching Envoy build rather than assuming the latest downloaded proxy is compatible. Record the `boe` and Envoy versions when reporting runtime results.
+
+For an installed compatible runtime, run `./verify.sh`. It starts a local Python upstream and checks pass, threshold throttle, missing-header and invalid-header responses with TARS disabled. It requires Cargo, Clang/libclang, Python 3, curl, `boe`, and a compatible Envoy binary; set `ENVOY_PATH` explicitly to choose that binary. This runtime script is separate from CI and has not been revalidated during the current build review. Its startup timeout does not bound the initial `boe` build/download.
+
+On macOS, full Xcode is not required for this Rust project, but Apple Command Line Tools are needed. The checked-in Cargo configuration permits unresolved Envoy host symbols in the dynamic library. A successful library build alone does not establish that a particular Envoy binary can load it.
+
+The generated Dockerfile uses Rust 1.84 and is not exercised by CI. Do not treat the stable-toolchain CI result as validation of that container recipe. No hosted SaaS, live TARS integration, browser demo or production deployment is established by these checks.
